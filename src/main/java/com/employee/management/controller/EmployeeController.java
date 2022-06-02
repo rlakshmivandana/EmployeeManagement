@@ -1,7 +1,9 @@
 package com.employee.management.controller;
 
 import java.util.List;
+import java.util.Locale;
 
+import com.employee.management.dto.ResponseDto;
 import com.employee.management.entity.Department;
 import com.employee.management.entity.Employee;
 import com.employee.management.service.DepartmentServiceImpl;
@@ -26,8 +28,15 @@ public class EmployeeController {
 
 
     @PostMapping("/department")
-    public ResponseEntity<String> createDepartment(@RequestBody Department department) {
+    public ResponseEntity<ResponseDto> createDepartment(@RequestBody Department department) {
         logger.info ( "inside createDepartment " );
+        try {
+            employeeService.saveDepartment ( department );
+        }catch(Exception e){
+
+            ResponseDto responseDto = ResponseDto.builder ().status ( false ).message ( "error in saving department" ).build ();
+            return ResponseEntity.ok(responseDto);
+        }
         return ResponseEntity.ok(employeeService.saveDepartment(department));
     }
 

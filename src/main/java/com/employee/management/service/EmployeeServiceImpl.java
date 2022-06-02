@@ -1,11 +1,13 @@
 package com.employee.management.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import com.employee.management.dao.AddressDao;
 import com.employee.management.dao.DepartmentDao;
 import com.employee.management.dao.EmployeeDao;
+import com.employee.management.dto.ResponseDto;
 import com.employee.management.entity.Address;
 import com.employee.management.entity.Department;
 import com.employee.management.entity.Employee;
@@ -49,9 +51,15 @@ public class EmployeeServiceImpl implements EmployeeService{
 	}
 
 	@Override
-	public String saveDepartment(Department department) {
-		departmentDao.save ( department );
-		return "saved successfully";
+	public ResponseDto saveDepartment(Department department) {
+        ResponseDto responseDto = ResponseDto.builder ().build ();
+
+        departmentDao.save ( department );
+        responseDto.setMessage ( "saved successfully" );
+        responseDto.setStatus ( true );
+        responseDto.setData (department);
+
+        return responseDto;
 	}
 
 	@Override
