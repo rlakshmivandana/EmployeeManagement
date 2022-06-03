@@ -7,18 +7,18 @@ import com.employee.management.entity.Department;
 import com.employee.management.entity.Employee;
 
 public interface EmployeeService {
-	
-	String saveEmployee(Employee emp);
 
-	List<Employee> getEmpList();
+	ResponseDto saveEmployee(Employee emp);
 
-	Employee getEmpById(Long id);
+	ResponseDto getEmpList();
+
+	ResponseDto getEmpById(Long id);
 
 	ResponseDto saveDepartment(Department department);
 
-	List<Department> getDepartment();
+	ResponseDto getDepartment();
 
-	List<Employee> getEmpByName(String name);
+	ResponseDto getEmpByName(String name);
 
 	String deleteEmployee(Long id);
 }

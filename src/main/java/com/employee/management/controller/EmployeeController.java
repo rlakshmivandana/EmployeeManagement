@@ -2,10 +2,12 @@ package com.employee.management.controller;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import com.employee.management.dto.ResponseDto;
 import com.employee.management.entity.Department;
 import com.employee.management.entity.Employee;
+import com.employee.management.exception.EntityNotFoundException;
 import com.employee.management.service.DepartmentServiceImpl;
 import com.employee.management.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,69 +32,89 @@ public class EmployeeController {
     @PostMapping("/department")
     public ResponseEntity<ResponseDto> createDepartment(@RequestBody Department department) {
         logger.info ( "inside createDepartment " );
-        try {
-            employeeService.saveDepartment ( department );
-        }catch(Exception e){
+        ResponseDto responseDto =  ResponseDto.builder ().build();
 
-            ResponseDto responseDto = ResponseDto.builder ().status ( false ).message ( "error in saving department" ).build ();
-            return ResponseEntity.ok(responseDto);
+        try {
+            responseDto = employeeService.saveDepartment ( department );
+        }catch(Exception e){
+            responseDto = ResponseDto.builder ().status ( false ).message ( "error in saving department" ).build ();
         }
-        return ResponseEntity.ok(employeeService.saveDepartment(department));
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/department")
-    public ResponseEntity<List<Department>> getDepartment() {
+    public ResponseEntity<ResponseDto> getDepartment() {
         logger.info ( "inside getDepartment " );
-        List<Department> deptList = employeeService.getDepartment();
-        if(deptList == null){
-            return new ResponseEntity<List<Department>>( HttpStatus.NOT_FOUND);
+        ResponseDto responseDto =  ResponseDto.builder ().build();
+        try {
+           responseDto = employeeService.getDepartment();
+        }catch(Exception e){
+             responseDto = ResponseDto.builder ().status ( false ).message ( "error in retrieving department" ).build ();
         }
-        return ResponseEntity.ok(employeeService.getDepartment());
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/employee")
-    public ResponseEntity<String> createEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<ResponseDto> createEmployee(@RequestBody Employee employee) {
         logger.info ( "inside createEmployee " );
+        ResponseDto responseDto =  ResponseDto.builder ().build();
         Department deptDetails = departmentServiceImpl.findById(employee.getDept ().getId ());
         employee.setDept ( deptDetails );
-        return ResponseEntity.ok(employeeService.saveEmployee(employee));
+        try {
+            responseDto = employeeService.saveEmployee(employee);
+        }catch(Exception e){
+            responseDto = ResponseDto.builder ().status ( false ).message ( "error in saving employee" ).build ();
+        }
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/employee")
-    public ResponseEntity<List<Employee>> getEmployee(){
+    public ResponseEntity<ResponseDto> getEmployee(){
         logger.info ( "inside getEmployee " );
-        List<Employee> empList = employeeService.getEmpList();
-        if(empList == null){
-            return new ResponseEntity<List<Employee>>( HttpStatus.NOT_FOUND);
+        ResponseDto responseDto =  ResponseDto.builder ().build();
+        try {
+            responseDto = employeeService.getEmpList();
+        }catch(Exception e){
+            throw new EntityNotFoundException ( "list", "list" );
         }
-        return ResponseEntity.ok(empList);
+        return ResponseEntity.ok(responseDto);
 
     }
 
     @GetMapping("/employee/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable("id") Long id){
+    public ResponseEntity<ResponseDto> getEmployeeById(@PathVariable("id") Long id){
         logger.info ( "inside getEmployeeById ");
-        Employee empList = employeeService.getEmpById(id);
-        if(empList == null){
-            return new ResponseEntity<Employee>( HttpStatus.NOT_FOUND);
+        ResponseDto responseDto =  ResponseDto.builder ().build();
+        try {
+            responseDto = employeeService.getEmpById(id);
+        }catch(Exception e){
+            throw new EntityNotFoundException ( "id", id );
         }
-        return ResponseEntity.ok(empList);
+        return ResponseEntity.ok(responseDto);
 
     }
 
     @GetMapping("/employee/search/{name}")
-    public ResponseEntity<List<Employee>> getEmployeeByName(@PathVariable("name") String name){
-        logger.info ( "inside getEmployeeByName " );
-        List<Employee> empList = employeeService.getEmpByName(name);
-        if(empList == null){
-            return new ResponseEntity<List<Employee>>( HttpStatus.NOT_FOUND);
+    public ResponseEntity<ResponseDto> getEmployeeByName(@PathVariable("name") String name){
+        logger.info ( "inside getEmployeeByName ");
+        ResponseDto responseDto =  ResponseDto.builder ().build();
+        try {
+            responseDto = employeeService.getEmpByName(name);
+        }catch(Exception e){
+            throw new EntityNotFoundException ( "name", name );
         }
-        return ResponseEntity.ok(empList);
-
+        return ResponseEntity.ok(responseDto);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
+        logger.info ( "inside delete method ");
+        ResponseDto responseDto =  ResponseDto.builder ().build();
+        try {
+            employeeService.deleteEmployee(id);
+        }catch(Exception e){
+           throw new EntityNotFoundException ( "id", id );
+        }
         return ResponseEntity.ok(employeeService.deleteEmployee(id));
     }
 

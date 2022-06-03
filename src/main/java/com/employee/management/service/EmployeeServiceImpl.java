@@ -1,7 +1,6 @@
 package com.employee.management.service;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import com.employee.management.dao.AddressDao;
@@ -11,7 +10,6 @@ import com.employee.management.dto.ResponseDto;
 import com.employee.management.entity.Address;
 import com.employee.management.entity.Department;
 import com.employee.management.entity.Employee;
-import com.employee.management.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,26 +26,47 @@ public class EmployeeServiceImpl implements EmployeeService{
 	DepartmentDao departmentDao;
 	
 	@Override
-	public String saveEmployee(Employee emp) {
-		// TODO Auto-generated method stub
+	public ResponseDto saveEmployee(Employee emp) {
+		ResponseDto responseDto = ResponseDto.builder ().build ();
 		Address addr = emp.getAddress();
 		addressDao.save(addr);
 		employeeDao.save(emp);
-		return "saved successfully";
+		responseDto.setMessage ( "saved successfully" );
+		responseDto.setStatus ( true );
+		responseDto.setData (emp);
+		return responseDto;
 	}
 
 	@Override
-	public List<Employee> getEmpList() {
+	public ResponseDto getEmpList() {
 		// TODO Auto-generated method stub
+		ResponseDto responseDto = ResponseDto.builder ().build ();
+
 		List<Employee> empList = employeeDao.findAll();
-		return empList;
+		if(empList == null){
+			responseDto = ResponseDto.builder ().status (false).message ( "Employee List is empty" ).build ();
+			return responseDto;
+		}
+		responseDto.setMessage ( "retrieved successfully" );
+		responseDto.setStatus ( true );
+		responseDto.setData (empList);
+		return responseDto;
 	}
 	
 	
 	@Override
-	public Employee getEmpById(Long id) {
+	public ResponseDto getEmpById(Long id) {
 		// TODO Auto-generated method stub
-		return employeeDao.findById(id).orElseThrow (()-> new EntityNotFoundException ( "Employee", id ) );
+		ResponseDto responseDto = ResponseDto.builder ().build ();
+		Optional<Employee> emp = employeeDao.findById(id);
+		if(!emp.isPresent ()){
+			responseDto = ResponseDto.builder ().status (false).message ( "Employee List is empty" ).build ();
+			return responseDto;
+		}
+		responseDto.setMessage ( "retrieved successfully" );
+		responseDto.setStatus ( true );
+		responseDto.setData (emp);
+		return responseDto;
 	}
 
 	@Override
@@ -63,13 +82,32 @@ public class EmployeeServiceImpl implements EmployeeService{
 	}
 
 	@Override
-	public List<Department> getDepartment() {
-		return departmentDao.findAll ();
+	public ResponseDto getDepartment() {
+		ResponseDto responseDto = ResponseDto.builder ().build ();
+
+		List<Department> deptList = departmentDao.findAll ();
+		if(deptList == null){
+			responseDto = ResponseDto.builder ().status (false).message ( "Department List is empty" ).build ();
+			return responseDto;
+		}
+		responseDto.setMessage ( "retrieved successfully" );
+		responseDto.setStatus ( true );
+		responseDto.setData (deptList);
+		return responseDto;
 	}
 
 	@Override
-	public List<Employee> getEmpByName(String name) {
-		return employeeDao.findByName(name);
+	public ResponseDto getEmpByName(String name) {
+		ResponseDto responseDto = ResponseDto.builder ().build ();
+		List<Employee> emp = employeeDao.findByName(name);
+		if(emp ==null){
+			responseDto = ResponseDto.builder ().status (false).message ( "Employee doesn't exists by nam" ).build ();
+			return responseDto;
+		}
+		responseDto.setMessage ( "retrieved employee details by name successfully" );
+		responseDto.setStatus ( true );
+		responseDto.setData (emp);
+		return responseDto;
 	}
 
 	@Override
